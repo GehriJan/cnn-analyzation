@@ -8,6 +8,7 @@ from torch import optim
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+from load import ImageDataset
 
 class CNN(nn.Module):
     def __init__(self, in_channels, num_classes=10):
@@ -30,8 +31,8 @@ class CNN(nn.Module):
         x = self.linearLayer1(x)
         return x
 
-def check_accuracy(loader, model):
-    if loader.dataset.train:
+def check_accuracy(loader, model, train):
+    if train:
         print("Checking accuracy on training data")
     else:
         print("Checking accuracy on test data")
@@ -56,16 +57,25 @@ def check_accuracy(loader, model):
 if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
     input_size = 784
-    num_classes = 10
+    num_classes = 26
     learning_rate = 0.001
     batch_size = 64
     num_epochs = 10
 
-    train_dataset = datasets.MNIST(root="dataset/", download=True, train=True, transform=transforms.ToTensor())
-    train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
+    # train_dataset = datasets.MNIST(root="dataset/", download=True, train=True, transform=transforms.ToTensor())
+    # train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 
-    test_dataset = datasets.MNIST(root="dataset/", download=True, train=False, transform=transforms.ToTensor())
-    test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True)
+    # test_dataset = datasets.MNIST(root="dataset/", download=True, train=False, transform=transforms.ToTensor())
+    # test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True)
+
+    csv_file_train = 'dataset/sign_mnist_train/sign_mnist_train.csv'
+    csv_file_test = 'dataset/sign_mnist_test/sign_mnist_test.csv'
+    dataset_train = ImageDataset(csv_file_train)
+    dataset_test = ImageDataset(csv_file_test)
+
+    # Create a DataLoader
+    train_loader = DataLoader(dataset=dataset_train, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(dataset=dataset_test, batch_size=batch_size, shuffle=True)
     
     model = CNN(in_channels=1, num_classes=num_classes).to(device)
     print(f"Model: {model}")
@@ -87,5 +97,5 @@ if __name__ == "__main__":
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-    check_accuracy(train_loader, model)
-    check_accuracy(test_loader, model)
+    check_accuracy(train_loader, model, train=True)
+    check_accuracy(test_loader, model, train=False)
