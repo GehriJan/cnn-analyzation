@@ -2,13 +2,12 @@
 
 import torch
 import torch.nn.functional as F
-import torchvision.datasets as datasets
-import torchvision.transforms as transforms
 from torch import optim
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from load import ImageDataset
+import numpy as np
 
 class CNN(nn.Module):
     def __init__(self, in_channels, num_classes=10):
@@ -23,13 +22,13 @@ class CNN(nn.Module):
         self.linearLayer1 = nn.Linear(16 * 7 * 7, num_classes)
 
     def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = self.pool(x)
-        x = F.relu(self.conv2(x))
-        x = self.pool(x)
-        x = x.reshape(x.shape[0], -1)
+        layer1 = F.relu(self.conv1(x))
+        pool1 = self.pool(layer1)
+        layer2 = F.relu(self.conv2(pool1))
+        pool2 = self.pool(layer2)
+        x = pool2.reshape(pool2.shape[0], -1)
         x = self.linearLayer1(x)
-        return x
+        return x, layer1, layer2
 
 def check_accuracy(loader, model, train):
     if train:
@@ -46,7 +45,7 @@ def check_accuracy(loader, model, train):
             x = x.to(device)
             y = y.to(device)
 
-            scores = model(x)
+            scores, _, _ = model(x)
             _, predictions = scores.max(1)
             num_correct+=(predictions==y).sum()
             num_samples+=predictions.size(0)
@@ -55,12 +54,17 @@ def check_accuracy(loader, model, train):
     model.train()
 
 if __name__ == "__main__":
+    np.random.seed(0)
+    torch.manual_seed(0)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     input_size = 784
     num_classes = 26
-    learning_rate = 0.001
     batch_size = 64
-    num_epochs = 10
+    num_epochs = 5
+    learning_rate = 0.01
+    lr_start = 0.02
+    lr_end = 0.005
+    lambda_reg = 0.002
 
     # train_dataset = datasets.MNIST(root="dataset/", download=True, train=True, transform=transforms.ToTensor())
     # train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
@@ -81,6 +85,7 @@ if __name__ == "__main__":
     print(f"Model: {model}")
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    #scheduler = lr_scheduler.LinearLR(optimizer, start_factor=lr_start, end_factor=lr_end, total_iters=num_epochs)
 
     for epoch in range(num_epochs):
         print(f"Epoch [{epoch + 1}/{num_epochs}]")
@@ -90,12 +95,16 @@ if __name__ == "__main__":
             targets = targets.to(device)
 
             # Forward pass
-            scores = model(data)
-            loss = criterion(scores, targets)
+            scores, layer1, layer2 = model(data)
+            
+            # L1 regularization
+            l1_norm = sum(p.abs().sum() for p in model.parameters())
+            loss = criterion(scores, targets) + lambda_reg * l1_norm
 
             # Backward pass
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+        #scheduler.step()
     check_accuracy(train_loader, model, train=True)
     check_accuracy(test_loader, model, train=False)
