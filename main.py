@@ -25,13 +25,13 @@ class CNN(nn.Module):
         self.linearLayer1 = nn.Linear(16 * 7 * 7, num_classes)
 
     def forward(self, x):
-        layer1 = F.relu(self.conv1(x))
-        pool1 = self.pool(layer1)
-        layer2 = F.relu(self.conv2(pool1))
-        pool2 = self.pool(layer2)
-        x = pool2.reshape(pool2.shape[0], -1)
+        x = F.relu(self.conv1(x))
+        x = self.pool(x)
+        x = F.relu(self.conv2(x))
+        x = self.pool(x)
+        x = x.reshape(x.shape[0], -1)
         x = self.linearLayer1(x)
-        return x, layer1, layer2
+        return x
 
 def check_accuracy(loader, model, train):
     if train:
@@ -48,7 +48,7 @@ def check_accuracy(loader, model, train):
             x = x.to(device)
             y = y.to(device)
 
-            scores, _, _ = model(x)
+            scores = model(x)
             _, predictions = scores.max(1)
             num_correct+=(predictions==y).sum()
             num_samples+=predictions.size(0)
@@ -91,7 +91,6 @@ if __name__ == "__main__":
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    #scheduler = lr_scheduler.LinearLR(optimizer, start_factor=lr_start, end_factor=lr_end, total_iters=num_epochs)
 
     for epoch in range(num_epochs):
         print(f"Epoch [{epoch + 1}/{num_epochs}]")
@@ -108,7 +107,6 @@ if __name__ == "__main__":
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-        #scheduler.step()
     check_accuracy(train_loader, model, train=True)
     check_accuracy(test_loader, model, train=False)
 
