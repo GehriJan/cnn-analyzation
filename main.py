@@ -60,13 +60,7 @@ if __name__ == "__main__":
     num_classes = 26
     learning_rate = 0.001
     batch_size = 64
-    num_epochs = 10
-
-    # train_dataset = datasets.MNIST(root="dataset/", download=True, train=True, transform=transforms.ToTensor())
-    # train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
-
-    # test_dataset = datasets.MNIST(root="dataset/", download=True, train=False, transform=transforms.ToTensor())
-    # test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True)
+    num_epochs = 5
 
     csv_file_train = 'dataset/sign_mnist_train/sign_mnist_train.csv'
     csv_file_test = 'dataset/sign_mnist_test/sign_mnist_test.csv'
