@@ -18,6 +18,7 @@ from PIL import Image
 import time
 import os
 from torchvision import transforms
+from model import CNN
 
 # Data augmentation transformations
 transform = transforms.Compose(
@@ -33,69 +34,6 @@ transform = transforms.Compose(
         ),  # Crop and resize to add scale variation
     ]
 )
-
-
-class CNN(nn.Module):
-    def __init__(self, in_channels, num_classes=10):
-        super(CNN, self).__init__()
-        # Stacked convolutional layers with padding
-        self.conv1 = nn.Conv2d(in_channels, 16, kernel_size=3, padding=1)
-        self.relu1 = nn.ReLU()
-
-        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, padding=1)
-        self.relu2 = nn.ReLU()
-
-        self.conv3 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.relu3 = nn.ReLU()
-
-        self.conv4 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-        self.relu4 = nn.ReLU()
-
-        self.flatten = nn.Flatten()
-        # Adjusted fully connected layer to match the new number of features
-        self.fc1 = nn.Linear(128 * 28 * 28, 64)
-        self.dropout1 = nn.Dropout(0.5)
-        self.fc2 = nn.Linear(64, num_classes)
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.relu1(x)
-        x = self.conv2(x)
-        x = self.relu2(x)
-        x = self.conv3(x)
-        x = self.relu3(x)
-        x = self.conv4(x)
-        x = self.relu4(x)
-
-        x = self.flatten(x)
-        x = self.dropout1(F.relu(self.fc1(x)))
-        x = self.fc2(x)
-        return x
-
-
-def check_accuracy(loader, model, train):
-    if train:
-        print("Checking accuracy on training data")
-    else:
-        print("Checking accuracy on test data")
-
-    num_correct = 0
-    num_samples = 0
-    model.eval()
-
-    with torch.no_grad():
-        for x, y in loader:
-            x = x.to(device)
-            y = y.to(device)
-
-            scores = model(x)
-            _, predictions = scores.max(1)
-            num_correct += (predictions == y).sum()
-            num_samples += predictions.size(0)
-        accuracy = float(num_correct) / float(num_samples) * 100
-        print(f"Got {num_correct}/{num_samples} with accuracy {accuracy:.2f}%")
-    model.train()
-
 
 if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -121,7 +59,7 @@ if __name__ == "__main__":
     model = CNN(in_channels=1, num_classes=num_classes).to(device)
 
     if load_model == True:
-        model.load_state_dict(torch.load("saved_models/" + model_path))
+        model.load_state_dict(torch.load("saved_models/" + model_path, map_location=device))
         print(f"Model: {model} loaded from file")
     else:
         print(f"Model: {model}")
@@ -144,11 +82,8 @@ if __name__ == "__main__":
                 loss.backward()
                 optimizer.step()
 
-            check_accuracy(train_loader, model, train=True)
-            check_accuracy(test_loader, model, train=False)
-
-    # check_accuracy(train_loader, model, train=True)
-    # check_accuracy(test_loader, model, train=False)
+    model.check_accuracy(train_loader, train=True)
+    model.check_accuracy(test_loader, train=False)
 
     if load_model == False:
         torch.save(model.state_dict(), "saved_models/" + model_path)

@@ -10,7 +10,6 @@ import numpy as np
 
 
 def display_confustion_matrix_plot(model, test_loader):
-
     y_pred = []
     y_true = []
 

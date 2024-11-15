@@ -17,58 +17,7 @@ import cv2  # Import OpenCV for resizing
 from PIL import Image
 import time
 import os
-
-
-class CNN(nn.Module):
-    def __init__(self, in_channels, num_classes=10):
-        super(CNN, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=26, kernel_size=5)
-        self.relu1 = nn.ReLU()
-        self.conv2 = nn.Conv2d(26, 20, kernel_size=5)
-        self.relu2 = nn.ReLU()
-        self.flatten = nn.Flatten()
-        self.fc1 = nn.Linear(20 * 20 * 20, 64)
-        self.relu3 = nn.ReLU()
-        self.fc2 = nn.Linear(64, num_classes)
-        self.softmax = nn.Softmax(dim=1)
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.relu1(x)
-        x = self.conv2(x)
-        x = self.relu2(x)
-        x = self.flatten(x)
-        x = self.fc1(x)
-        x = self.relu3(x)
-        x = self.fc2(x)
-        x = self.softmax(x)
-        return x
-
-
-def check_accuracy(loader, model, train):
-    if train:
-        print("Checking accuracy on training data")
-    else:
-        print("Checking accuracy on test data")
-
-    num_correct = 0
-    num_samples = 0
-    model.eval()
-
-    with torch.no_grad():
-        for x, y in loader:
-            x = x.to(device)
-            y = y.to(device)
-
-            scores = model(x)
-            _, predictions = scores.max(1)
-            num_correct += (predictions == y).sum()
-            num_samples += predictions.size(0)
-        accuracy = float(num_correct) / float(num_samples) * 100
-        print(f"Got {num_correct}/{num_samples} with accuracy {accuracy:.2f}%")
-    model.train()
-
-
+from model import CNN
 if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
     input_size = 784
@@ -93,7 +42,7 @@ if __name__ == "__main__":
     model = CNN(in_channels=1, num_classes=num_classes).to(device)
 
     if load_model == True:
-        model.load_state_dict(torch.load("saved_models/" + model_path))
+        model.load_state_dict(torch.load("saved_models/" + model_path, map_location=device))
         print(f"Model: {model} loaded from file")
     else:
         print(f"Model: {model}")
@@ -115,9 +64,8 @@ if __name__ == "__main__":
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-
-    check_accuracy(train_loader, model, train=True)
-    check_accuracy(test_loader, model, train=False)
+    model.check_accuracy(train_loader, train=True, device=device)
+    model.check_accuracy(test_loader, train=False, device=device)
 
     if load_model == False:
         torch.save(model.state_dict(), "saved_models/" + model_path)
