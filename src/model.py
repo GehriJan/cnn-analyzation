@@ -6,7 +6,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from load import ImageDataset
-from confusion_matrix import display_confustion_matrix_plot
+from xAI_methods import display_confustion_matrix_plot
 import numpy as np
 
 class CNN(nn.Module):
