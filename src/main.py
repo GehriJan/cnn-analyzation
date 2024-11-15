@@ -39,12 +39,12 @@ if __name__ == "__main__":
     num_epochs = 7
     load_model = False
     store_model = False
-    model_path = "tmp.pth"
+    model_path = "better_test_than_training.pth"
 
     xAI_method: Literal[
         "confusion_matrix",
         "grad-cam"
-    ] = "confusion_matrix"
+    ] = "grad-cam"
 
     csv_file_train = 'dataset/sign_mnist_train/sign_mnist_train.csv'
     csv_file_test = 'dataset/sign_mnist_test/sign_mnist_test.csv'
@@ -86,6 +86,6 @@ if __name__ == "__main__":
     if xAI_method=="confusion_matrix":
         display_confustion_matrix_plot(model, test_loader)
     elif xAI_method=="grad-cam":
-        perform_gradcam(model=model, dataset_test=dataset_test)
+        perform_gradcam(model=model, dataset_test=dataset_test, device=device)
     if store_model:
         torch.save(model.state_dict(), "saved_models/" + model_path)

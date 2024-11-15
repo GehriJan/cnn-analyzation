@@ -1,5 +1,5 @@
-import matplotlib.pyplot as plt
 import torch
+import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
 from torch.utils.data import DataLoader

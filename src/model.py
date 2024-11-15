@@ -24,12 +24,19 @@ class CNN(nn.Module):
         self.linearLayer1 = nn.Linear(16 * 7 * 7, num_classes)
 
     def forward(self, x):
-        x = F.relu(self.conv1(x))
+        print(x.shape)
+        x = self.relu1(self.conv1(x))
+        print(x.shape)
         x = self.pool(x)
-        x = F.relu(self.conv2(x))
+        print(x.shape)
+        x = self.relu2(self.conv2(x))
+        print(x.shape)
         x = self.pool(x)
+        print(x.shape)
         x = x.reshape(x.shape[0], -1)
+        print(x.shape)
         x = self.linearLayer1(x)
+        print(x.shape)
         return x
 
     def check_accuracy(self, loader, train, device):

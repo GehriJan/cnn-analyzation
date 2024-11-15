@@ -15,4 +15,5 @@
 ## TODO
 
 - Presentation
+- 9 und 26 sind ausm Dataset draußen -> erwähnen
 - Wissenschaftliche Verweise
