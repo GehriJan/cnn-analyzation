@@ -1,21 +1,11 @@
-import random
-import torch
-import torch.nn.functional as F
-from torch import optim
-from torch import nn
-from torch.utils.data import DataLoader
-from tqdm import tqdm
-from load import ImageDataset
 from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from torchvision.transforms.functional import to_pil_image
 import numpy as np
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 import cv2  # Import OpenCV for resizing
-from PIL import Image
 import time
 import os
-from model import CNN
 
 def perform_gradcam(model, dataset_test, device):
     # Generate a unique timestamp

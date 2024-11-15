@@ -2,8 +2,6 @@ import matplotlib.pyplot as plt
 import torch
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
-from torch.utils.data import DataLoader
-from matplotlib.colors import LogNorm
 import numpy as np
 
 

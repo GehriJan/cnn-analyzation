@@ -1,13 +1,7 @@
 
 import torch
-import torch.nn.functional as F
-from torch import optim
 from torch import nn
-from torch.utils.data import DataLoader
-from tqdm import tqdm
-from load import ImageDataset
 from xAI_methods import display_confustion_matrix_plot
-import numpy as np
 
 class CNN(nn.Module):
     def __init__(self, in_channels, num_classes=10):
@@ -24,19 +18,12 @@ class CNN(nn.Module):
         self.linearLayer1 = nn.Linear(16 * 7 * 7, num_classes)
 
     def forward(self, x):
-        print(x.shape)
         x = self.relu1(self.conv1(x))
-        print(x.shape)
         x = self.pool(x)
-        print(x.shape)
         x = self.relu2(self.conv2(x))
-        print(x.shape)
         x = self.pool(x)
-        print(x.shape)
         x = x.reshape(x.shape[0], -1)
-        print(x.shape)
         x = self.linearLayer1(x)
-        print(x.shape)
         return x
 
     def check_accuracy(self, loader, train, device):

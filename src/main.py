@@ -1,7 +1,6 @@
 # initial code from https://medium.com/@myringoleMLGOD/simple-convolutional-neural-network-cnn-for-dummies-in-pytorch-a-step-by-step-guide-6f4109f6df80
 
 import torch
-import torch.nn.functional as F
 from torch import optim
 from torch import nn
 from torch.utils.data import DataLoader
@@ -13,6 +12,7 @@ from model import CNN
 from typing_extensions import Literal
 from gradcam import perform_gradcam
 from torchvision import transforms
+import random
 
 # Data augmentation transformations
 transform = transforms.Compose(
@@ -29,8 +29,10 @@ transform = transforms.Compose(
     ]
 )
 if __name__ == "__main__":
-    np.random.seed(0)
-    torch.manual_seed(0)
+    seed = 27
+    torch.manual_seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     input_size = 784
     num_classes = 26
@@ -38,8 +40,8 @@ if __name__ == "__main__":
     learning_rate = 0.001
     num_epochs = 7
     load_model = False
-    store_model = False
-    model_path = "better_test_than_training.pth"
+    store_model = True
+    model_path = "tmp.pth"
 
     xAI_method: Literal[
         "confusion_matrix",
