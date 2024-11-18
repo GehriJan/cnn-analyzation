@@ -1,16 +1,10 @@
-import matplotlib.pyplot as plt
 import torch
+import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
-from torch.utils.data import DataLoader
-from matplotlib.colors import LogNorm
 import numpy as np
 
-
-
-
 def display_confustion_matrix_plot(model, test_loader):
-
     y_pred = []
     y_true = []
 
