@@ -15,9 +15,3 @@
 ## TODO
 
 - Presentation
-- 9 und 26 sind ausm Dataset draußen -> erwähnen
-- Wissenschaftliche Verweise
-- bei den Buchstaben auf das cheat sheet verweisen.
-- G und T verwirrend
-- beim letzten kann man noch zeigen warum Z und J fehlt
-- README aktualisieren
