@@ -14,4 +14,15 @@ See `sign_lang.ipynb` for results
 
 `saved_models` - Saved cnn_networks
 
-`Src Folder` - Testing different models and trying out different XAI methods.
+`src Folder` - Testing different models and trying out different XAI methods.
+
+## Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+## Authors
+
+7979968 Tobias Menzel
+6732014 Jannis Gehring
